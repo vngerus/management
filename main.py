@@ -1,8 +1,10 @@
 import sys
+import getpass
+import msvcrt
 from datetime import datetime, date
 from DAO import Database, EmpleadoDAO, DepartamentoDAO, ProyectoDAO, UsuarioDAO
 from DTO import EmpleadoDTO, DepartamentoDTO, ProyectoDTO, UsuarioDTO
-from utils.utils import consultar_indicadores, generar_excel, generar_pdf
+from utils.utils import consultar_indicadores
 
 db_connection = Database().get_connection()
 empleado_dao = EmpleadoDAO(db_connection)
@@ -13,6 +15,32 @@ usuario_dao = UsuarioDAO(db_connection)
 def input_seguro(mensaje: str) -> str:
     val = input(mensaje)
     return val.strip()
+
+def input_password(mensaje: str) -> str:
+    print(mensaje, end='', flush=True)
+    password = ""
+    
+    while True:
+        try:
+            char = msvcrt.getch()
+            
+            if char == b'\r':
+                print()
+                break
+            
+            elif char == b'\x08':
+                if password:
+                    password = password[:-1]
+                    print('\b \b', end='', flush=True)
+            
+            else:
+                password += char.decode('utf-8', errors='ignore')
+                print('*', end='', flush=True)
+        except:
+            print("\n[Usando modo oculto]")
+            return getpass.getpass("Contraseña: ")
+    
+    return password
 
 def validar_email(email: str) -> bool:
     return "@" in email and "." in email
@@ -25,9 +53,9 @@ def validar_salario(salario_str: str) -> float:
         return 0.0
 
 def login() -> str:
-    print("\n=== INICIAR SESIÓN ===")
+    print("\n--- INICIAR SESIÓN ---")
     username = input_seguro("Usuario: ")
-    password = input_seguro("Contraseña: ")
+    password = input_password("Contraseña: ")
     
     usuario = usuario_dao.validar_credenciales(username, password)
     
@@ -428,7 +456,7 @@ def menu_indicadores(usuario: str):
             # Buscar si el usuario tiene un perfil de empleado asociado
             try:
                 with db_connection.cursor() as cursor:
-                    sql = "SELECT nombre, email, salario, d.nombre as departamento FROM empleados e LEFT JOIN departamentos d ON e.departamento_id = d.id WHERE e.email LIKE %s OR e.nombre LIKE %s LIMIT 1"
+                    sql = "SELECT e.nombre, e.email, e.salario, d.nombre as departamento FROM empleados e LEFT JOIN departamentos d ON e.departamento_id = d.id WHERE e.email LIKE %s OR e.nombre LIKE %s LIMIT 1"
                     cursor.execute(sql, (f"%{usuario}%", f"%{usuario}%"))
                     datos_empleado = cursor.fetchone()
             except Exception as e:
@@ -458,71 +486,29 @@ def menu_indicadores(usuario: str):
                            VALUES (%s, %s, %s, %s, %s)"""
                     cursor.execute(sql, (indicador, valor, fecha_sql, usuario, usuario))
                 
+                db_connection.commit()
                 print("Consulta guardada en el historial con datos del empleado.")
         except Exception as e:
             print(f"Error al guardar historial: {e}")
     else:
         print(f"Error en consulta: {fecha_respuesta}")
 def menu_reportes():
-    print("\n--- GENERAR REPORTES ---")
-    print("1. Reporte de Empleados (Excel)")
-    print("2. Reporte de Proyectos (PDF)")
-    print("3. Reporte de Registro de Tiempos (Excel)")
-    print("4. Historial de Consultas de Indicadores")
-    print("5. Volver")
+    print("\n--- CONSULTAS ---")
+    print("1. Historial de Consultas de Indicadores")
+    print("2. Volver")
     
     opcion = input("Opción: ")
     
     if opcion == '1':
-        generar_reporte_empleados()
-    elif opcion == '2':
-        generar_reporte_proyectos()
-    elif opcion == '3':
-        generar_reporte_tiempos()
-    elif opcion == '4':
         mostrar_historial_indicadores()
-    elif opcion == '5':
+    elif opcion == '2':
         return
 
-def generar_reporte_empleados():
-    empleados_data = empleado_dao.obtener_con_departamento()
-    
-    if empleados_data:
-        datos_excel = []
-        for emp in empleados_data:
-            datos_excel.append({
-                'ID': emp['id'],
-                'Nombre': emp['nombre'],
-                'Email': emp['email'],
-                'Salario': emp['salario'],
-                'Departamento': emp.get('departamento_nombre') or 'Sin asignar'
-            })
-        
-        generar_excel(datos_excel, "Reporte_Empleados.xlsx")
-    else:
-        print("No hay empleados para reportar.")
 
-def generar_reporte_proyectos():
-    proyectos = proyecto_dao.obtener_todos()
-    
-    if proyectos:
-        lista_texto = []
-        for proy in proyectos:
-            lista_texto.append(f"• {proy.nombre} (Inicio: {proy.fecha_inicio})")
-            lista_texto.append(f"  Descripción: {proy.descripcion}")
-            lista_texto.append("")
-        
-        generar_pdf("Listado de Proyectos", lista_texto, "Reporte_Proyectos.pdf")
-    else:
-        print("No hay proyectos para reportar.")
 
-def generar_reporte_tiempos():
-    datos_tiempos = proyecto_dao.obtener_reporte_tiempos()
-    
-    if datos_tiempos:
-        generar_excel(datos_tiempos, "Reporte_Tiempos.xlsx")
-    else:
-        print("No hay registros de tiempo para reportar.")
+
+
+
 
 def mostrar_historial_indicadores():
     print("\n--- HISTORIAL DE CONSULTAS DE INDICADORES ---")
@@ -612,7 +598,7 @@ def crear_usuario():
         print("El nombre de usuario ya existe.")
         return
     
-    password = input_seguro("Contraseña: ")
+    password = input_password("Contraseña: ")
     
     print("Roles disponibles:")
     print("1. admin - Acceso completo al sistema")
@@ -663,7 +649,7 @@ def actualizar_usuario_menu():
         print("(Presiona Enter para mantener el valor actual)")
         
         nuevo_username = input_seguro(f"Nombre de usuario [{usuario.username}]: ") or usuario.username
-        nueva_password = input_seguro("Nueva contraseña (dejar vacío para no cambiar): ")
+        nueva_password = input_password("Nueva contraseña (dejar vacío para no cambiar): ")
         
         print(f"Rol actual: {usuario.rol}")
         print("1. admin - Acceso completo")
@@ -728,7 +714,7 @@ def menu_principal(usuario: str):
         print("2. Gestión de Departamentos")
         print("3. Gestión de Proyectos y Tiempos")
         print("4. Consulta de Indicadores Económicos")
-        print("5. Generar Reportes (PDF/Excel)")
+        print("5. Consultas e Historial")
         
         if es_admin:
             print("6. Gestión de Usuarios (Solo Admin)")

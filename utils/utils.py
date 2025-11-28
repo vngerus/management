@@ -2,8 +2,6 @@ import bcrypt
 from cryptography.fernet import Fernet
 import requests
 import os
-import pandas as pd
-from reportlab.pdfgen import canvas
 
 def cargar_clave():
     key_path = "config/secret.key"
@@ -63,30 +61,3 @@ def consultar_indicadores(indicador, fecha=None):
         return None, str(e)
 
 
-def generar_excel(datos, nombre_archivo="reporte.xlsx"):
-    try:
-        df = pd.DataFrame(datos)
-        df.to_excel(nombre_archivo, index=False)
-        print(f"Excel generado: {nombre_archivo}")
-    except Exception as e:
-        print(f"Error generando Excel: {e}")
-
-def generar_pdf(titulo, texto_lista, nombre_archivo="reporte.pdf"):
-    try:
-        c = canvas.Canvas(nombre_archivo)
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, 800, f"EcoTech Solutions - {titulo}")
-        
-        c.setFont("Helvetica", 12)
-        y = 750
-        for linea in texto_lista:
-            c.drawString(50, y, str(linea))
-            y -= 20
-            if y < 50: 
-                c.showPage()
-                c.setFont("Helvetica", 12)
-                y = 800
-        c.save()
-        print(f"PDF generado exitosamente: {nombre_archivo}")
-    except Exception as e:
-        print(f"Error generando PDF: {e}")
