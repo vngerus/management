@@ -32,10 +32,10 @@ def login() -> str:
     usuario = usuario_dao.validar_credenciales(username, password)
     
     if usuario:
-        print(f"✅ Acceso concedido. Bienvenido {usuario.username} (Rol: {usuario.rol})")
+        print(f"Acceso concedido. Bienvenido {usuario.username} (Rol: {usuario.rol})")
         return usuario.username
     else:
-        print("❌ Credenciales inválidas.")
+        print("Credenciales inválidas.")
         return ""
 
 def menu_empleados():
@@ -91,9 +91,9 @@ def crear_empleado():
     )
     
     if empleado_dao.crear(empleado_dto):
-        print("✅ Empleado creado exitosamente.")
+        print("Empleado creado exitosamente.")
     else:
-        print("❌ Error al crear empleado.")
+        print("Error al crear empleado.")
 
 def listar_empleados():
     print("\n--- LISTADO DE EMPLEADOS ---")
@@ -157,9 +157,9 @@ def actualizar_empleado():
         )
         
         if empleado_dao.actualizar(empleado_actualizado):
-            print("✅ Empleado actualizado exitosamente.")
+            print("Empleado actualizado exitosamente.")
         else:
-            print("❌ Error al actualizar empleado.")
+            print("Error al actualizar empleado.")
             
     except ValueError:
         print("ID inválido.")
@@ -170,9 +170,9 @@ def asignar_empleado_departamento():
     
     try:
         if empleado_dao.asignar_departamento(int(emp_id), int(dept_id)):
-            print("✅ Empleado asignado al departamento.")
+            print("Empleado asignado al departamento.")
         else:
-            print("❌ Error en la asignación.")
+            print("Error en la asignación.")
     except ValueError:
         print("IDs inválidos.")
 
@@ -187,9 +187,9 @@ def eliminar_empleado():
         confirmar = input(f"¿Está seguro de eliminar a {empleado.nombre}? (s/N): ")
         if confirmar.lower() == 's':
             if empleado_dao.eliminar(int(emp_id)):
-                print("✅ Empleado eliminado.")
+                print("Empleado eliminado.")
             else:
-                print("❌ Error al eliminar empleado.")
+                print("Error al eliminar empleado.")
         else:
             print("Operación cancelada.")
     except ValueError:
@@ -232,9 +232,9 @@ def crear_departamento():
     )
     
     if departamento_dao.crear(departamento_dto):
-        print("✅ Departamento creado exitosamente.")
+        print("Departamento creado exitosamente.")
     else:
-        print("❌ Error al crear departamento.")
+        print("Error al crear departamento.")
 
 def listar_departamentos():
     print("\n--- LISTADO DE DEPARTAMENTOS ---")
@@ -281,9 +281,9 @@ def actualizar_departamento():
         )
         
         if departamento_dao.actualizar(departamento_actualizado):
-            print("✅ Departamento actualizado exitosamente.")
+            print("Departamento actualizado exitosamente.")
         else:
-            print("❌ Error al actualizar departamento.")
+            print("Error al actualizar departamento.")
             
     except ValueError:
         print("ID inválido.")
@@ -299,9 +299,9 @@ def eliminar_departamento():
         confirmar = input(f"¿Está seguro de eliminar el departamento '{departamento.nombre}'? (s/N): ")
         if confirmar.lower() == 's':
             if departamento_dao.eliminar(int(dept_id)):
-                print("✅ Departamento eliminado.")
+                print("Departamento eliminado.")
             else:
-                print("❌ Error al eliminar departamento.")
+                print("Error al eliminar departamento.")
         else:
             print("Operación cancelada.")
     except ValueError:
@@ -345,9 +345,9 @@ def crear_proyecto():
     )
     
     if proyecto_dao.crear(proyecto_dto):
-        print("✅ Proyecto creado exitosamente.")
+        print("Proyecto creado exitosamente.")
     else:
-        print("❌ Error al crear proyecto.")
+        print("Error al crear proyecto.")
 
 def listar_proyectos():
     print("\n--- LISTADO DE PROYECTOS ---")
@@ -368,9 +368,9 @@ def asignar_empleado_proyecto():
     
     try:
         if proyecto_dao.asignar_empleado(int(emp_id), int(proy_id)):
-            print("✅ Empleado asignado al proyecto.")
+            print("Empleado asignado al proyecto.")
         else:
-            print("❌ Error en la asignación (posiblemente ya está asignado).")
+            print("Error en la asignación (posiblemente ya está asignado).")
     except ValueError:
         print("IDs inválidos.")
 
@@ -383,9 +383,9 @@ def registrar_horas():
     try:
         horas = float(horas_str)
         if proyecto_dao.registrar_tiempo(int(emp_id), int(proy_id), horas, descripcion):
-            print("✅ Tiempo registrado correctamente.")
+            print("Tiempo registrado correctamente.")
         else:
-            print("❌ Error al registrar tiempo.")
+            print("Error al registrar tiempo.")
     except ValueError:
         print("Datos inválidos.")
 
@@ -400,9 +400,9 @@ def eliminar_proyecto():
         confirmar = input(f"¿Está seguro de eliminar el proyecto '{proyecto.nombre}'? (s/N): ")
         if confirmar.lower() == 's':
             if proyecto_dao.eliminar(int(proy_id)):
-                print("✅ Proyecto eliminado.")
+                print("Proyecto eliminado.")
             else:
-                print("❌ Error al eliminar proyecto.")
+                print("Error al eliminar proyecto.")
         else:
             print("Operación cancelada.")
     except ValueError:
@@ -458,12 +458,11 @@ def menu_indicadores(usuario: str):
                            VALUES (%s, %s, %s, %s, %s)"""
                     cursor.execute(sql, (indicador, valor, fecha_sql, usuario, usuario))
                 
-                print("✅ Consulta guardada en el historial con datos del empleado.")
+                print("Consulta guardada en el historial con datos del empleado.")
         except Exception as e:
             print(f"Error al guardar historial: {e}")
     else:
-        print(f"❌ Error en consulta: {fecha_respuesta}")
-
+        print(f"Error en consulta: {fecha_respuesta}")
 def menu_reportes():
     print("\n--- GENERAR REPORTES ---")
     print("1. Reporte de Empleados (Excel)")
@@ -575,9 +574,9 @@ def inicializar_sistema():
             )
             
             if usuario_dao.crear(admin_dto):
-                print("✅ Usuario administrador creado exitosamente.")
+                print("Usuario administrador creado exitosamente.")
             else:
-                print("❌ Error al crear el usuario administrador por defecto.")
+                print("Error al crear el usuario administrador por defecto.")
     except Exception as e:
         print(f"[ERROR] Error en inicialización: {e}")
 
@@ -610,7 +609,7 @@ def crear_usuario():
     
     # Verificar que el username no exista
     if usuario_dao.obtener_por_username(username):
-        print("❌ El nombre de usuario ya existe.")
+        print("El nombre de usuario ya existe.")
         return
     
     password = input_seguro("Contraseña: ")
@@ -626,7 +625,7 @@ def crear_usuario():
     elif rol_opcion == '2':
         rol = 'empleado'
     else:
-        print("❌ Opción de rol inválida.")
+        print("Opción de rol inválida.")
         return
     
     usuario_dto = UsuarioDTO(
@@ -636,9 +635,9 @@ def crear_usuario():
     )
     
     if usuario_dao.crear(usuario_dto):
-        print(f"✅ Usuario '{username}' creado exitosamente con rol '{rol}'.")
+        print(f"Usuario '{username}' creado exitosamente con rol '{rol}'.")
     else:
-        print("❌ Error al crear usuario.")
+        print("Error al crear usuario.")
 
 def listar_usuarios():
     print("\n--- LISTADO DE USUARIOS ---")
@@ -686,9 +685,9 @@ def actualizar_usuario_menu():
         )
         
         if usuario_dao.actualizar(usuario_actualizado):
-            print("✅ Usuario actualizado exitosamente.")
+            print("Usuario actualizado exitosamente.")
         else:
-            print("❌ Error al actualizar usuario.")
+            print("Error al actualizar usuario.")
             
     except ValueError:
         print("ID inválido.")
@@ -702,15 +701,15 @@ def eliminar_usuario():
             return
         
         if usuario.username == 'admin':
-            print("❌ No se puede eliminar el usuario administrador principal.")
+            print("No se puede eliminar el usuario administrador principal.")
             return
         
         confirmar = input(f"¿Está seguro de eliminar al usuario '{usuario.username}'? (s/N): ")
         if confirmar.lower() == 's':
             if usuario_dao.eliminar(int(user_id)):
-                print("✅ Usuario eliminado.")
+                print("Usuario eliminado.")
             else:
-                print("❌ Error al eliminar usuario.")
+                print("Error al eliminar usuario.")
         else:
             print("Operación cancelada.")
     except ValueError:
@@ -758,9 +757,9 @@ def menu_principal(usuario: str):
             break
         else:
             if opcion == '6' and not es_admin:
-                print("❌ Acceso denegado. Solo los administradores pueden gestionar usuarios.")
+                print("Acceso denegado. Solo los administradores pueden gestionar usuarios.")
             else:
-                print("❌ Opción inválida.")
+                print("Opción inválida.")
 
 def main():
     if not db_connection:
