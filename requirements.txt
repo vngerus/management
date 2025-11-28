@@ -1,0 +1,7 @@
+pymysql
+cryptography
+bcrypt
+requests
+pandas
+openpyxl
+reportlab
