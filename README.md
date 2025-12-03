@@ -41,7 +41,12 @@ python scripts/test_sistema.py
 
 ## Diagrama de Clases UML
 
+<details>
+<summary><strong>Ver Diagrama</strong></summary>
+
 ![Diagrama de Clases](docs/diagrama_clases.png)
+
+</details>
 
 El diagrama muestra la arquitectura del sistema con:
 
