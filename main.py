@@ -17,7 +17,6 @@ def input_seguro(mensaje: str) -> str:
     return val.strip()
 
 def input_password(mensaje: str) -> str:
-    """Input de contraseña que muestra asteriscos en lugar de caracteres"""
     print(mensaje, end='', flush=True)
     password = ""
     

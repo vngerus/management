@@ -1,12 +1,6 @@
-"""
-Script de Pruebas del Sistema de Gestión de Empleados EcoTech Solutions
-Este script realiza pruebas completas de todas las funcionalidades del sistema
-"""
-
 import sys
 import os
 
-# Agregar el directorio raíz al path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from datetime import date
@@ -14,7 +8,6 @@ from DAO import Database, EmpleadoDAO, DepartamentoDAO, ProyectoDAO, UsuarioDAO
 from DTO import EmpleadoDTO, DepartamentoDTO, ProyectoDTO, UsuarioDTO
 from utils.utils import hash_password, check_password, encriptar_dato, desencriptar_dato, consultar_indicadores
 
-# Colores para output
 class Colors:
     GREEN = '\033[92m'
     RED = '\033[91m'
@@ -35,14 +28,12 @@ def print_error(message):
 def print_info(message):
     print(f"  {Colors.YELLOW}ℹ{Colors.ENDC} {message}")
 
-# Inicializar conexión
 db_connection = Database().get_connection()
 
 if not db_connection:
     print_error("No se pudo conectar a la base de datos. Verifica XAMPP y la configuración.")
     sys.exit(1)
 
-# Inicializar DAOs
 empleado_dao = EmpleadoDAO(db_connection)
 departamento_dao = DepartamentoDAO(db_connection)
 proyecto_dao = ProyectoDAO(db_connection)
@@ -52,9 +43,6 @@ print(f"\n{Colors.BOLD}{'='*70}{Colors.ENDC}")
 print(f"{Colors.BOLD}SCRIPT DE PRUEBAS - SISTEMA DE GESTIÓN ECOTECH SOLUTIONS{Colors.ENDC}")
 print(f"{Colors.BOLD}{'='*70}{Colors.ENDC}")
 
-# ========================
-# TEST 1: SEGURIDAD
-# ========================
 print_test("1. Seguridad - Hash de Contraseñas")
 try:
     password = "test123"
@@ -73,9 +61,6 @@ try:
 except Exception as e:
     print_error(f"Error en prueba de hash: {e}")
 
-# ========================
-# TEST 2: CIFRADO
-# ========================
 print_test("2. Seguridad - Cifrado de Datos Sensibles")
 try:
     dato_original = "Calle Falsa 123"
@@ -92,12 +77,8 @@ try:
 except Exception as e:
     print_error(f"Error en prueba de cifrado: {e}")
 
-# ========================
-# TEST 3: USUARIOS
-# ========================
 print_test("3. CRUD - Gestión de Usuarios")
 try:
-    # Crear usuario de prueba
     test_user = UsuarioDTO(
         username="test_usuario",
         password="password123",
@@ -109,26 +90,20 @@ try:
     else:
         print_info("Usuario ya existe (continuando con tests)")
     
-    # Validar credenciales
     usuario = usuario_dao.validar_credenciales("test_usuario", "password123")
     if usuario:
         print_success(f"Login exitoso - Usuario: {usuario.username}, Rol: {usuario.rol}")
     else:
         print_error("Error en validación de credenciales")
     
-    # Listar usuarios
     usuarios = usuario_dao.obtener_todos()
     print_success(f"Total usuarios en sistema: {len(usuarios)}")
     
 except Exception as e:
     print_error(f"Error en prueba de usuarios: {e}")
 
-# ========================
-# TEST 4: DEPARTAMENTOS
-# ========================
 print_test("4. CRUD - Gestión de Departamentos")
 try:
-    # Crear departamento
     dept_test = DepartamentoDTO(
         nombre="Departamento Test",
         gerente="Gerente Test"
@@ -139,7 +114,6 @@ try:
     else:
         print_info("Departamento ya existe")
     
-    # Listar departamentos
     departamentos = departamento_dao.obtener_todos()
     print_success(f"Total departamentos: {len(departamentos)}")
     
@@ -152,12 +126,8 @@ try:
 except Exception as e:
     print_error(f"Error en prueba de departamentos: {e}")
 
-# ========================
-# TEST 5: EMPLEADOS
-# ========================
 print_test("5. CRUD - Gestión de Empleados")
 try:
-    # Crear empleado
     emp_test = EmpleadoDTO(
         nombre="Empleado Test",
         email="test@ecotech.com",
@@ -172,18 +142,15 @@ try:
     else:
         print_info("Empleado ya existe")
     
-    # Listar empleados
     empleados = empleado_dao.obtener_con_departamento()
     print_success(f"Total empleados: {len(empleados)}")
     
-    # Verificar cifrado
     if empleados:
         emp = empleado_dao.obtener_por_id(empleados[0]['id'])
         if emp:
             print_success(f"Empleado consultado - Dirección descifrada: {emp.direccion}")
             print_success(f"Teléfono descifrado: {emp.telefono}")
     
-    # Asignar a departamento
     if empleados and departamentos:
         emp_id = empleados[0]['id']
         dept_id = departamentos[0].id
@@ -193,12 +160,8 @@ try:
 except Exception as e:
     print_error(f"Error en prueba de empleados: {e}")
 
-# ========================
-# TEST 6: PROYECTOS
-# ========================
 print_test("6. CRUD - Gestión de Proyectos")
 try:
-    # Crear proyecto
     proy_test = ProyectoDTO(
         nombre="Proyecto Test",
         descripcion="Proyecto de prueba para validación del sistema",
@@ -210,11 +173,9 @@ try:
     else:
         print_info("Proyecto ya existe")
     
-    # Listar proyectos
     proyectos = proyecto_dao.obtener_todos()
     print_success(f"Total proyectos: {len(proyectos)}")
     
-    # Asignar empleado a proyecto
     if proyectos and empleados:
         emp_id = empleados[0]['id']
         proy_id = proyectos[0].id
@@ -224,23 +185,18 @@ try:
         else:
             print_info("Asignación ya existe")
     
-    # Registrar tiempo
     if proyectos and empleados:
         if proyecto_dao.registrar_tiempo(emp_id, proy_id, 8.5, "Desarrollo de funcionalidades"):
             print_success("Registro de tiempo creado")
         else:
             print_error("Error al registrar tiempo")
     
-    # Obtener reporte de tiempos
     tiempos = proyecto_dao.obtener_reporte_tiempos()
     print_success(f"Total registros de tiempo: {len(tiempos)}")
     
 except Exception as e:
     print_error(f"Error en prueba de proyectos: {e}")
 
-# ========================
-# TEST 7: API EXTERNA
-# ========================
 print_test("7. Consumo de API Externa - Indicadores Económicos")
 try:
     print_info("Consultando UF (puede tardar unos segundos)...")
@@ -251,7 +207,6 @@ try:
     else:
         print_error(f"Error al consultar API: {fecha}")
     
-    # Probar otro indicador
     print_info("Consultando Dólar...")
     valor, fecha = consultar_indicadores("dolar")
     
@@ -263,12 +218,8 @@ try:
 except Exception as e:
     print_error(f"Error en prueba de API: {e}")
 
-# ========================
-# TEST 8: VALIDACIONES
-# ========================
 print_test("8. Validaciones de Entrada")
 try:
-    # Validar email inválido
     from main import validar_email, validar_salario
     
     if not validar_email("invalido"):
@@ -277,7 +228,6 @@ try:
     if validar_email("valido@test.com"):
         print_success("Aceptación de email válido funciona")
     
-    # Validar salario
     salario = validar_salario("1500000")
     if salario == 1500000.0:
         print_success("Validación de salario numérico funciona")
@@ -289,17 +239,12 @@ try:
 except Exception as e:
     print_error(f"Error en prueba de validaciones: {e}")
 
-# ========================
-# TEST 9: MANEJO DE EXCEPCIONES
-# ========================
 print_test("9. Manejo de Excepciones")
 try:
-    # Intentar obtener empleado inexistente
     emp = empleado_dao.obtener_por_id(999999)
     if emp is None:
         print_success("Manejo de ID inexistente funciona")
     
-    # Intentar crear empleado con email duplicado (si existe)
     if empleados:
         emp_dup = EmpleadoDTO(
             nombre="Duplicado",
@@ -315,13 +260,9 @@ try:
 except Exception as e:
     print_success(f"Excepciones manejadas correctamente: {type(e).__name__}")
 
-# ========================
-# TEST 10: BASE DE DATOS
-# ========================
 print_test("10. Integridad de Base de Datos")
 try:
     with db_connection.cursor() as cursor:
-        # Verificar tablas
         cursor.execute("SHOW TABLES")
         tablas = cursor.fetchall()
         tablas_esperadas = ['usuarios', 'empleados', 'departamentos', 'proyectos', 
@@ -335,7 +276,6 @@ try:
             else:
                 print_error(f"Tabla '{tabla}' NO existe")
         
-        # Verificar relaciones
         cursor.execute("""
             SELECT COUNT(*) as total 
             FROM information_schema.TABLE_CONSTRAINTS 
@@ -348,9 +288,6 @@ try:
 except Exception as e:
     print_error(f"Error en prueba de BD: {e}")
 
-# ========================
-# RESUMEN FINAL
-# ========================
 print(f"\n{Colors.BOLD}{'='*70}{Colors.ENDC}")
 print(f"{Colors.BOLD}RESUMEN DE PRUEBAS{Colors.ENDC}")
 print(f"{Colors.BOLD}{'='*70}{Colors.ENDC}")
