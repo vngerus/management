@@ -1,4 +1,6 @@
 import sys
+import getpass
+import msvcrt
 from datetime import datetime, date
 from DAO import Database, EmpleadoDAO, DepartamentoDAO, ProyectoDAO, UsuarioDAO
 from DTO import EmpleadoDTO, DepartamentoDTO, ProyectoDTO, UsuarioDTO
@@ -14,6 +16,32 @@ def input_seguro(mensaje: str) -> str:
     val = input(mensaje)
     return val.strip()
 
+def input_password(mensaje: str) -> str:
+    print(mensaje, end='', flush=True)
+    password = ""
+    
+    while True:
+        try:
+            char = msvcrt.getch()
+            
+            if char == b'\r':  # Enter
+                print()
+                break
+            
+            elif char == b'\x08':  # Backspace
+                if password:
+                    password = password[:-1]
+                    print('\b \b', end='', flush=True)
+            
+            else:
+                password += char.decode('utf-8', errors='ignore')
+                print('*', end='', flush=True)
+        except:
+            print("\n[Usando modo oculto]")
+            return getpass.getpass("Contraseña: ")
+    
+    return password
+
 def validar_email(email: str) -> bool:
     return "@" in email and "." in email
 
@@ -27,7 +55,7 @@ def validar_salario(salario_str: str) -> float:
 def login() -> str:
     print("\n=== INICIAR SESIÓN ===")
     username = input_seguro("Usuario: ")
-    password = input_seguro("Contraseña: ")
+    password = input_password("Contraseña: ")
     
     usuario = usuario_dao.validar_credenciales(username, password)
     
@@ -612,7 +640,7 @@ def crear_usuario():
         print("El nombre de usuario ya existe.")
         return
     
-    password = input_seguro("Contraseña: ")
+    password = input_password("Contraseña: ")
     
     print("Roles disponibles:")
     print("1. admin - Acceso completo al sistema")
@@ -663,7 +691,12 @@ def actualizar_usuario_menu():
         print("(Presiona Enter para mantener el valor actual)")
         
         nuevo_username = input_seguro(f"Nombre de usuario [{usuario.username}]: ") or usuario.username
-        nueva_password = input_seguro("Nueva contraseña (dejar vacío para no cambiar): ")
+        
+        print("¿Desea cambiar la contraseña? (s/N): ", end='')
+        cambiar_pass = input().lower()
+        nueva_password = ""
+        if cambiar_pass == 's':
+            nueva_password = input_password("Nueva contraseña: ")
         
         print(f"Rol actual: {usuario.rol}")
         print("1. admin - Acceso completo")
