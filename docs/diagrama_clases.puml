@@ -1,0 +1,172 @@
+@startuml diagrama_clases
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FFFFFF
+skinparam roundcorner 5
+
+title Sistema de Gestion de Empleados - EcoTech Solutions\nDiagrama de Clases UML
+
+package "Capa DTO - Data Transfer Objects" #DDFFDD {
+    
+    class EmpleadoDTO {
+        -id: int
+        -nombre: str
+        -email: str
+        -direccion: str
+        -telefono: str
+        -salario: float
+        -inicio_contrato: date
+        -departamento_id: int
+        __
+        +to_dict(): dict
+        +from_dict(dict): EmpleadoDTO
+    }
+    
+    class DepartamentoDTO {
+        -id: int
+        -nombre: str
+        -gerente: str
+        __
+        +to_dict(): dict
+        +from_dict(dict): DepartamentoDTO
+    }
+    
+    class ProyectoDTO {
+        -id: int
+        -nombre: str
+        -descripcion: str
+        -fecha_inicio: date
+        __
+        +to_dict(): dict
+        +from_dict(dict): ProyectoDTO
+    }
+    
+    class UsuarioDTO {
+        -id: int
+        -username: str
+        -password: str
+        -rol: str
+        __
+        +to_dict(): dict
+        +from_dict(dict): UsuarioDTO
+    }
+}
+
+package "Capa DAO - Data Access Objects" #DDDDFF {
+    
+    abstract class BaseDAO {
+        #connection: Connection
+        __
+        +{abstract} crear(dto): bool
+        +{abstract} obtener_por_id(int): object
+        +{abstract} obtener_todos(): list
+        +{abstract} actualizar(dto): bool
+        +{abstract} eliminar(int): bool
+    }
+    
+    class EmpleadoDAO {
+        -connection: Connection
+        __
+        +crear(EmpleadoDTO): bool
+        +obtener_por_id(int): EmpleadoDTO
+        +obtener_todos(): list
+        +actualizar(EmpleadoDTO): bool
+        +eliminar(int): bool
+        +asignar_departamento(int, int): bool
+    }
+    
+    class DepartamentoDAO {
+        -connection: Connection
+        __
+        +crear(DepartamentoDTO): bool
+        +obtener_por_id(int): DepartamentoDTO
+        +obtener_todos(): list
+        +actualizar(DepartamentoDTO): bool
+        +eliminar(int): bool
+    }
+    
+    class ProyectoDAO {
+        -connection: Connection
+        __
+        +crear(ProyectoDTO): bool
+        +obtener_por_id(int): ProyectoDTO
+        +obtener_todos(): list
+        +actualizar(ProyectoDTO): bool
+        +eliminar(int): bool
+        +asignar_empleado(int, int): bool
+        +registrar_tiempo(int, int, float, str): bool
+    }
+    
+    class UsuarioDAO {
+        -connection: Connection
+        __
+        +crear(UsuarioDTO): bool
+        +obtener_por_id(int): UsuarioDTO
+        +validar_credenciales(str, str): UsuarioDTO
+        +obtener_todos(): list
+        +actualizar(UsuarioDTO): bool
+        +eliminar(int): bool
+    }
+}
+
+package "Conexion a Base de Datos" #FFFFDD {
+    class Database {
+        -host: str
+        -user: str
+        -password: str
+        -database: str
+        __
+        +get_connection(): Connection
+        +close_connection(): void
+    }
+}
+
+' === RELACIONES DE HERENCIA ===
+BaseDAO <|-- EmpleadoDAO : hereda
+BaseDAO <|-- DepartamentoDAO : hereda
+BaseDAO <|-- ProyectoDAO : hereda
+BaseDAO <|-- UsuarioDAO : hereda
+
+' === DEPENDENCIAS DAO-DTO ===
+EmpleadoDAO ..> EmpleadoDTO : usa
+DepartamentoDAO ..> DepartamentoDTO : usa
+ProyectoDAO ..> ProyectoDTO : usa
+UsuarioDAO ..> UsuarioDTO : usa
+
+' === RELACIONES DAO-DATABASE ===
+EmpleadoDAO --> Database : conecta
+DepartamentoDAO --> Database : conecta
+ProyectoDAO --> Database : conecta
+UsuarioDAO --> Database : conecta
+
+' === RELACIONES DE NEGOCIO ===
+EmpleadoDTO "N" -- "0..1" DepartamentoDTO : pertenece a
+EmpleadoDTO "N" -- "N" ProyectoDTO : trabaja en
+
+' === NOTAS ===
+note right of BaseDAO
+  <b>Patron DAO</b>
+  Clase abstracta que define
+  el contrato CRUD para todos
+  los DAOs del sistema
+end note
+
+note bottom of EmpleadoDTO
+  <b>Seguridad:</b>
+  - direccion: encriptada con Fernet
+  - telefono: encriptado con Fernet
+end note
+
+note bottom of UsuarioDTO
+  <b>Seguridad:</b>
+  - password: hasheada con bcrypt
+  - roles: admin/empleado
+end note
+
+note bottom of Database
+  <b>Conexion MySQL</b>
+  Base de datos: mgmt_employee
+  Libreria: pymysql
+end note
+
+@enduml

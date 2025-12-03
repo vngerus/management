@@ -39,16 +39,33 @@ python main.py
 python scripts/test_sistema.py
 ```
 
+## Diagrama de Clases UML
+
+![Diagrama de Clases](docs/diagrama_clases.png)
+
+El diagrama muestra la arquitectura del sistema con:
+
+- **Capa DTO**: Objetos de transferencia de datos (EmpleadoDTO, DepartamentoDTO, ProyectoDTO, UsuarioDTO)
+- **Capa DAO**: Objetos de acceso a datos con herencia de BaseDAO (patron DAO)
+- **Seguridad**: Encriptacion con Fernet y hash con bcrypt
+- **Relaciones**: Asociaciones entre Empleado-Departamento (N:1) y Empleado-Proyecto (N:N)
+
 ## Cumplimiento de la Pauta
 
 <details>
 <summary><strong>ETAPA 1 - POO y CRUD</strong></summary>
 
+### 2.1.1 Diagrama de Clases UML
+
+- **Diagrama**: `docs/diagrama_clases.puml` - Diagrama completo del sistema
+- **Imagen**: `docs/diagrama_clases.png` - Visualizacion en formato PNG
+- **Herramienta**: PlantUML - Estandar UML con notacion correcta
+
 ### 2.1.2 Herencia, Encapsulamiento y Polimorfismo
 
-- **Herencia**: `model/models.py` - Clase `Empleado` hereda desde `Persona` (ABC)
-- **Polimorfismo**: `model/models.py` - Método abstracto `mostrar_info()` implementado en `Empleado`
-- **Encapsulamiento**: Separación en capas - `DAO/` (acceso a datos), `DTO/` (transferencia), `model/` (entidades)
+- **Herencia**: `DAO/base_dao.py` - Clase abstracta BaseDAO heredada por todos los DAOs
+- **Polimorfismo**: Metodos abstractos CRUD implementados de forma especifica en cada DAO
+- **Encapsulamiento**: Separacion en capas - `DAO/` (acceso a datos), `DTO/` (transferencia), `model/` (entidades)
 
 ### 2.1.3 Librerías de Conexión a BD
 
